@@ -12,9 +12,11 @@
 #include <unistd.h>
 
 sem_t forks[5];
+sem_t ordering_mutex; 
 
 void* p1(){
 	printf("Philosopher 1 is thinking\n");
+	sem_wait(&ordering_mutex);
 	sem_wait(&forks[0]);
 	sem_wait(&forks[1]);
   	//critical section
@@ -24,11 +26,13 @@ void* p1(){
     //signal
     sem_post(&forks[0]);
 	sem_post(&forks[1]);
+	sem_post(&ordering_mutex)
 	return NULL; 
 }
 
 void* p2(){
 	printf("Philosopher 2 is thinking\n");
+	sem_wait(&ordering_mutex);
 	sem_wait(&forks[1]);
 	sem_wait(&forks[2]);
     //critical section
@@ -38,11 +42,13 @@ void* p2(){
     //signal
     sem_post(&forks[1]);
 	sem_post(&forks[2]);
+	sem_post(&ordering_mutex);
 	return NULL; 
 }
 
 void* p3(){
 	printf("Philosopher 3 is thinking\n");
+	sem_wait(&ordering_mutex);
 	sem_wait(&forks[2]);
 	sem_wait(&forks[3]); 
     //critical section
@@ -52,11 +58,13 @@ void* p3(){
     //signal
     sem_post(&forks[2]);
 	sem_post(&forks[3]);
+	sem_post(&ordering_mutex);
 	return NULL; 
 }
 
 void* p4(){
 	printf("Philosopher 4 is thinking\n");
+	sem_wait(&ordering_mutex);
 	sem_wait(&forks[3]);
 	sem_wait(&forks[4]);
     //critical section
@@ -66,11 +74,13 @@ void* p4(){
     //signal
     sem_post(&forks[3]);
 	sem_post(&forks[4]);
+	sem_post(&ordering_mutex);
 	return NULL; 
 }
 
 void* p5(){
 	printf("Philosopher 5 is thinking\n");
+	sem_wait(&ordering_mutex);
 	sem_wait(&forks[4]);
 	sem_wait(&forks[0]);
     //critical section
@@ -80,10 +90,12 @@ void* p5(){
     //signal
     sem_post(&forks[4]);
 	sem_post(&forks[0]);
+	sem_post(&ordering_mutex);
 	return NULL; 
 }
 
 int main(){
+	sem_init(&ordering_mutex, 0, 1);
 	sem_init(&forks[0], 0, 1);
 	sem_init(&forks[1], 0, 1);
 	sem_init(&forks[2], 0, 1);
@@ -105,6 +117,7 @@ int main(){
 	sem_destroy(&forks[2]); 
 	sem_destroy(&forks[3]);  
 	sem_destroy(&forks[4]); 
+	sem_destroy(&ordering_mutex);
 
 	return 0;
 }
